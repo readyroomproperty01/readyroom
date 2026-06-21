@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ReadyRoom">
+<title>ReadyRoom Property</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #F5F4F0;
+    --surface: #FFFFFF;
+    --surface2: #EDEBE6;
+    --border: #E0DDD6;
+    --accent: #1B5C3E;
+    --accent2: #2E8B5C;
+    --accent-light: #E6F2EC;
+    --warn: #C0392B;
+    --warn-light: #FDECEA;
+    --text: #1A1A18;
+    --text2: #555350;
+    --text3: #999690;
+    --radius: 14px;
+    --radius-sm: 9px;
+    --shadow: 0 1px 4px rgba(0,0,0,0.07), 0 4px 14px rgba(0,0,0,0.05);
+    --nav-h: 60px;
+    --bot-h: 64px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'IBM Plex Sans Thai', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; }
+
+  /* TOP NAV */
+  .top-nav {
+    background: var(--accent);
+    height: var(--nav-h);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 18px;
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  }
+  .brand { color: #fff; font-size: 17px; font-weight: 600; letter-spacing: 0.01em; }
+  .brand span { color: #7ECBA0; }
+  .sync-btn { background: rgba(255,255,255,0.15); border: none; color: #fff; border-radius: 8px; padding: 7px 13px; font-size: 13px; cursor: pointer; font-family: inherit; }
+
+  /* BOTTOM NAV */
+  .bot-nav {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom);
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+  }
+  .bot-tab {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 10px 4px 8px;
+    cursor: pointer; border: none; background: none; font-family: inherit;
+    color: var(--text3); font-size: 11px; gap: 3px; transition: color 0.15s;
+  }
+  .bot-tab .icon { font-size: 22px; }
+  .bot-tab.active { color: var(--accent); }
+  .bot-tab.active .icon { transform: scale(1.1); }
+
+  /* PAGES */
+  .page { display: none; padding: calc(var(--nav-h) + 16px) 16px calc(var(--bot-h) + 20px); }
+  .page.active { display: block; }
+
+  /* SECTION HEADER */
+  .sec-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .sec-title { font-size: 19px; font-weight: 600; }
+  .sec-sub { font-size: 13px; color: var(--text3); margin-top: 2px; }
+
+  /* CARDS */
+  .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); }
+  .card-pad { padding: 18px; }
+
+  /* STAT GRID */
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .stat-card { padding: 16px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); }
+  .stat-label { font-size: 11px; color: var(--text3); font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px; }
+  .stat-val { font-size: 28px; font-weight: 700; line-height: 1; }
+  .stat-val.green { color: var(--accent2); }
+  .stat-val.red { color: var(--warn); }
+  .stat-val.blue { color: #2563EB; }
+  .stat-val.gray { color: var(--text2); }
+
+  /* FORM */
+  .form-sec-title { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.07em; text-transform: uppercase; margin: 18px 0 12px; padding-bottom: 7px; border-bottom: 1px solid var(--border); }
+  .form-group { margin-bottom: 13px; }
+  label { display: block; font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 5px; }
+  input, select, textarea {
+    width: 100%; padding: 11px 13px; border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm); font-family: inherit; font-size: 15px;
+    color: var(--text); background: var(--bg); outline: none; transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent2); background: #fff; }
+  textarea { resize: vertical; min-height: 80px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+  /* FURNITURE */
+  .furn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .furn-item {
+    display: flex; align-items: center; gap: 8px; padding: 10px 12px;
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    cursor: pointer; font-size: 13px; background: var(--bg); transition: all 0.15s;
+    -webkit-user-select: none; user-select: none;
+  }
+  .furn-item.on { border-color: var(--accent2); background: var(--accent-light); color: var(--accent); font-weight: 500; }
+  .furn-item input { display: none; }
+
+  /* UPLOAD */
+  .upload-box {
+    border: 2px dashed var(--border); border-radius: var(--radius);
+    padding: 28px 16px; text-align: center; cursor: pointer; background: var(--bg);
+    transition: all 0.15s;
+  }
+  .upload-box:active { border-color: var(--accent2); background: var(--accent-light); }
+  .upload-icon { font-size: 30px; margin-bottom: 6px; }
+  .upload-text { font-size: 14px; color: var(--text2); }
+  .preview-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
+  .prev-wrap { position: relative; aspect-ratio: 1; }
+  .prev-wrap img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
+  .prev-del { position: absolute; top: 3px; right: 3px; background: rgba(0,0,0,0.55); color: #fff; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+  /* BUTTONS */
+  .btn { padding: 12px 20px; border-radius: var(--radius-sm); font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 7px; transition: all 0.15s; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:active { background: var(--accent2); }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-accent { background: var(--accent-light); color: var(--accent); }
+  .btn-warn { background: var(--warn-light); color: var(--warn); }
+  .btn-full { width: 100%; justify-content: center; }
+  .btn-sm { padding: 8px 14px; font-size: 13px; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+
+  /* AI OUTPUT */
+  .ai-box { background: #FAFAF8; border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px; font-size: 14px; line-height: 1.8; white-space: pre-wrap; color: var(--text); min-height: 60px; }
+  .ai-loading { display: flex; align-items: center; gap: 10px; color: var(--text3); padding: 10px 0; }
+  .dots { display: flex; gap: 4px; }
+  .dots span { width: 7px; height: 7px; border-radius: 50%; background: var(--accent2); animation: dp 1.2s ease-in-out infinite; }
+  .dots span:nth-child(2) { animation-delay: 0.2s; }
+  .dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes dp { 0%,80%,100%{opacity:0.2;transform:scale(0.8)} 40%{opacity:1;transform:scale(1)} }
+
+  /* LISTING CARDS */
+  .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .filter-row select { flex: 1; min-width: 130px; padding: 9px 11px; font-size: 13px; }
+  .filter-row input { flex: 1; min-width: 130px; padding: 9px 11px; font-size: 13px; }
+
+  .listing-list { display: flex; flex-direction: column; gap: 12px; }
+  .listing-card {
+    background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border);
+    box-shadow: var(--shadow); overflow: hidden; cursor: pointer;
+    display: flex; gap: 0; transition: transform 0.1s;
+  }
+  .listing-card:active { transform: scale(0.98); }
+  .lc-img { width: 110px; flex-shrink: 0; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 32px; overflow: hidden; }
+  .lc-img img { width: 100%; height: 100%; object-fit: cover; }
+  .lc-body { padding: 13px 14px; flex: 1; min-width: 0; }
+  .lc-code { font-size: 11px; font-weight: 600; color: var(--accent); letter-spacing: 0.04em; margin-bottom: 2px; }
+  .lc-name { font-weight: 600; font-size: 14px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lc-sub { font-size: 12px; color: var(--text2); margin-bottom: 6px; }
+  .lc-price { font-size: 16px; font-weight: 700; color: var(--accent); }
+  .lc-price span { font-size: 12px; font-weight: 400; color: var(--text3); }
+  .lc-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+  .tag { font-size: 11px; padding: 2px 8px; border-radius: 99px; font-weight: 500; background: var(--surface2); color: var(--text2); }
+  .tag.available { background: #DCFCE7; color: #166534; }
+  .tag.occupied { background: #FEE2E2; color: #991B1B; }
+
+  /* DETAIL MODAL */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; display: none; }
+  .modal-overlay.open { display: block; }
+  .modal-sheet {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 201;
+    background: var(--surface); border-radius: 20px 20px 0 0;
+    max-height: 90vh; overflow-y: auto;
+    display: none; padding-bottom: env(safe-area-inset-bottom);
+  }
+  .modal-sheet.open { display: block; }
+  .modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 99px; margin: 12px auto 0; }
+  .modal-head { padding: 16px 18px 12px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .modal-title { font-size: 17px; font-weight: 600; }
+  .modal-close { background: var(--surface2); border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .modal-body { padding: 18px; }
+
+  .detail-imgs { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 16px; -webkit-overflow-scrolling: touch; }
+  .detail-img { width: 200px; height: 150px; flex-shrink: 0; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border); }
+  .detail-img img { width: 100%; height: 100%; object-fit: cover; }
+  .detail-img.empty { display: flex; align-items: center; justify-content: center; font-size: 40px; background: var(--surface2); }
+
+  .info-row { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--border); gap: 12px; }
+  .info-row:last-child { border: none; }
+  .info-k { font-size: 13px; color: var(--text2); flex-shrink: 0; }
+  .info-v { font-size: 13px; font-weight: 500; text-align: right; }
+
+  /* POST BOX */
+  .post-box { background: #F8F8F5; border: 1.5px solid var(--border); border-radius: var(--radius); padding: 14px; font-size: 14px; line-height: 1.8; white-space: pre-wrap; color: var(--text); }
+
+  /* CUSTOMER */
+  .cust-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 14px 16px; box-shadow: var(--shadow); display: flex; gap: 12px; align-items: flex-start; }
+  .cust-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--accent-light); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .cust-name { font-weight: 600; font-size: 14px; }
+  .cust-detail { font-size: 13px; color: var(--text2); margin-top: 2px; }
+  .cust-badges { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+  .badge-z { background: var(--accent-light); color: var(--accent); font-size: 11px; padding: 2px 8px; border-radius: 99px; font-weight: 500; }
+  .badge-b { background: #EEF2FF; color: #3730A3; font-size: 11px; padding: 2px 8px; border-radius: 99px; font-weight: 500; }
+
+  /* EMPTY */
+  .empty { text-align: center; padding: 50px 20px; color: var(--text3); }
+  .empty .ei { font-size: 44px; margin-bottom: 10px; }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: calc(var(--bot-h) + 16px); left: 50%; transform: translateX(-50%) translateY(20px); background: var(--accent); color: #fff; padding: 11px 20px; border-radius: 99px; font-size: 14px; font-weight: 500; white-space: nowrap; opacity: 0; transition: all 0.25s; z-index: 999; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* DIVIDER */
+  .div { height: 1px; background: var(--border); margin: 16px 0; }
+
+  /* SEARCH PAGE BANNER */
+  .search-banner { background: var(--accent); border-radius: var(--radius); padding: 16px 18px; color: #fff; margin-bottom: 16px; }
+  .search-banner h2 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .search-banner p { font-size: 13px; opacity: 0.8; }
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<div class="top-nav">
+  <div class="brand">Ready<span>Room</span> Property</div>
+  <button class="sync-btn" onclick="syncAll()">🔄 Sync</button>
+</div>
+
+<!-- PAGES -->
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dash">
+  <div class="sec-header">
+    <div>
+      <div class="sec-title">ภาพรวม</div>
+      <div class="sec-sub" id="dash-date"></div>
+    </div>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">ห้องทั้งหมด</div><div class="stat-val gray" id="s-total">–</div></div>
+    <div class="stat-card"><div class="stat-label">ว่างอยู่</div><div class="stat-val green" id="s-avail">–</div></div>
+    <div class="stat-card"><div class="stat-label">มีผู้เช่า</div><div class="stat-val red" id="s-occ">–</div></div>
+    <div class="stat-card"><div class="stat-label">ลูกค้า</div><div class="stat-val blue" id="s-cust">–</div></div>
+  </div>
+  <div class="sec-header">
+    <div class="sec-title" style="font-size:16px">ห้องตามโซน</div>
+  </div>
+  <div id="zone-summary" style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px"></div>
+  <div class="sec-header">
+    <div class="sec-title" style="font-size:16px">ลูกค้าล่าสุด</div>
+    <button class="btn btn-secondary btn-sm" onclick="showPage('customers')">ดูทั้งหมด</button>
+  </div>
+  <div id="dash-cust-list" style="display:flex;flex-direction:column;gap:10px"></div>
+</div>
+
+<!-- ADD LISTING -->
+<div class="page" id="page-add">
+  <div class="sec-header">
+    <div>
+      <div class="sec-title">เพิ่มห้องใหม่</div>
+      <div class="sec-sub">AI เขียนประกาศให้อัตโนมัติ</div>
+    </div>
+  </div>
+  <div class="card card-pad">
+    <div class="form-sec-title">ข้อมูลโครงการ</div>
+    <div class="form-group">
+      <label>ชื่อโครงการ *</label>
+      <input id="f-proj" type="text" placeholder="เช่น The Parkland Charan-Pinklao">
+    </div>
+    <div class="row2">
+      <div class="form-group">
+        <label>โซน *</label>
+        <select id="f-zone">
+          <option value="">เลือกโซน</option>
+          <option>จรัญสนิทวงศ์</option><option>ปิ่นเกล้า</option><option>พระราม 8</option>
+          <option>บางพลัด</option><option>ห้วยขวาง</option><option>วุฒากาศ</option>
+          <option>ตลาดพลู</option><option>บางหว้า</option><option>บางแค</option>
+          <option>เพชรเกษม</option><option>ศาลายา</option><option>มหิดล</option>
+          <option>ฝั่งธนอื่นๆ</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>ราคา (บาท/เดือน) *</label>
+        <input id="f-price" type="number" placeholder="12000">
+      </div>
+    </div>
+    <div class="row3">
+      <div class="form-group">
+        <label>ตึก</label>
+        <input id="f-bld" type="text" placeholder="A">
+      </div>
+      <div class="form-group">
+        <label>ชั้น</label>
+        <input id="f-floor" type="number" placeholder="8">
+      </div>
+      <div class="form-group">
+        <label>ขนาด ตร.ม.</label>
+        <input id="f-size" type="number" placeholder="26.5">
+      </div>
+    </div>
+    <div class="row3">
+      <div class="form-group">
+        <label>ห้องนอน</label>
+        <select id="f-bed">
+          <option value="Studio">Studio</option>
+          <option value="1" selected>1 นอน</option>
+          <option value="2">2 นอน</option>
+          <option value="3">3 นอน</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>ห้องน้ำ</label>
+        <select id="f-bath">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>สถานะ</label>
+        <select id="f-status">
+          <option value="available">ว่าง</option>
+          <option value="occupied">มีผู้เช่า</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>พร้อมเข้าอยู่วันที่</label>
+      <input id="f-date" type="date">
+    </div>
+    <div class="form-group">
+      <label>โลเคชัน / จุดเด่น</label>
+      <textarea id="f-nearby" placeholder="เช่น ใกล้ MRT บางยี่ขัน · Central ปิ่นเกล้า 5 นาที"></textarea>
+    </div>
+
+    <div class="form-sec-title">เฟอร์นิเจอร์ + เครื่องใช้ไฟฟ้า</div>
+    <div class="furn-grid" id="furn-grid"></div>
+    <div class="form-group" style="margin-top:10px">
+      <label>เพิ่มเติม</label>
+      <input id="f-furn-extra" type="text" placeholder="เช่น ไมโครเวฟ, เครื่องดูดฝุ่น">
+    </div>
+
+    <div class="form-sec-title">ข้อมูลเจ้าของ</div>
+    <div class="row2">
+      <div class="form-group">
+        <label>ชื่อเจ้าของ</label>
+        <input id="f-own-name" type="text" placeholder="ชื่อ">
+      </div>
+      <div class="form-group">
+        <label>เบอร์เจ้าของ</label>
+        <input id="f-own-phone" type="tel" placeholder="0xx-xxx-xxxx">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>ลิงก์โพส Facebook</label>
+      <input id="f-fb" type="url" placeholder="https://facebook.com/...">
+    </div>
+
+    <div class="form-sec-title">รูปภาพ</div>
+    <div class="upload-box" onclick="document.getElementById('file-in').click()">
+      <div class="upload-icon">📷</div>
+      <div class="upload-text">แตะเพื่ออัปโหลดรูป</div>
+      <input type="file" id="file-in" multiple accept="image/*" style="display:none" onchange="handleImgs(event)">
+    </div>
+    <div class="preview-grid" id="prev-grid"></div>
+
+    <div class="div"></div>
+    <button class="btn btn-accent btn-full" onclick="genPost()" style="margin-bottom:10px">✨ สร้างประกาศ AI</button>
+
+    <div id="ai-sec" style="display:none">
+      <div class="form-sec-title">ประกาศที่สร้างให้</div>
+      <div id="ai-out" class="ai-box"></div>
+      <div class="btn-row">
+        <button class="btn btn-secondary btn-sm" onclick="copyPost()">📋 Copy ประกาศ</button>
+        <button class="btn btn-accent btn-sm" onclick="window.open('https://www.facebook.com/','_blank')">📘 เปิด Facebook</button>
+      </div>
+    </div>
+
+    <div class="div"></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="clearForm()">ล้าง</button>
+      <button class="btn btn-primary" style="flex:1" onclick="saveListing()">💾 บันทึกห้อง</button>
+    </div>
+  </div>
+</div>
+
+<!-- LISTINGS -->
+<div class="page" id="page-list">
+  <div class="sec-header">
+    <div class="sec-title">ห้องทั้งหมด</div>
+    <button class="btn btn-primary btn-sm" onclick="showPage('add')">+ เพิ่ม</button>
+  </div>
+  <div class="filter-row">
+    <select id="fl-zone" onchange="renderList()">
+      <option value="">ทุกโซน</option>
+      <option>จรัญสนิทวงศ์</option><option>ปิ่นเกล้า</option><option>พระราม 8</option>
+      <option>บางพลัด</option><option>ห้วยขวาง</option><option>วุฒากาศ</option>
+      <option>ตลาดพลู</option><option>บางหว้า</option><option>บางแค</option>
+      <option>เพชรเกษม</option><option>ศาลายา</option><option>มหิดล</option>
+      <option>ฝั่งธนอื่นๆ</option>
+    </select>
+    <select id="fl-budget" onchange="renderList()">
+      <option value="">ทุกราคา</option>
+      <option value="6500-9999">6,500–9,999</option>
+      <option value="10000-14999">10,000–14,999</option>
+      <option value="15000-19999">15,000–19,999</option>
+      <option value="20000-24999">20,000–24,999</option>
+      <option value="25000-30000">25,000–30,000</option>
+    </select>
+    <select id="fl-status" onchange="renderList()">
+      <option value="">ทุกสถานะ</option>
+      <option value="available">ว่าง</option>
+      <option value="occupied">มีผู้เช่า</option>
+    </select>
+    <input id="fl-q" placeholder="🔍 ค้นหา RR-032 หรือชื่อ..." oninput="renderList()">
+  </div>
+  <div class="listing-list" id="listing-list"></div>
+</div>
+
+<!-- CUSTOMERS -->
+<div class="page" id="page-customers">
+  <div class="sec-header"><div class="sec-title">ลูกค้า</div></div>
+  <div class="card card-pad" style="margin-bottom:16px">
+    <div class="form-sec-title" style="margin-top:0">บันทึกลูกค้าใหม่</div>
+    <div class="row2">
+      <div class="form-group"><label>ชื่อลูกค้า *</label><input id="c-name" type="text" placeholder="ชื่อ"></div>
+      <div class="form-group"><label>เบอร์ / Line</label><input id="c-contact" type="text" placeholder="0xx-xxx-xxxx"></div>
+    </div>
+    <div class="row2">
+      <div class="form-group">
+        <label>โซนที่สนใจ</label>
+        <select id="c-zone">
+          <option value="">เลือกโซน</option>
+          <option>จรัญสนิทวงศ์</option><option>ปิ่นเกล้า</option><option>พระราม 8</option>
+          <option>บางพลัด</option><option>ห้วยขวาง</option><option>วุฒากาศ</option>
+          <option>ตลาดพลู</option><option>บางหว้า</option><option>บางแค</option>
+          <option>เพชรเกษม</option><option>ศาลายา</option><option>มหิดล</option>
+          <option>ฝั่งธนอื่นๆ</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>งบ (บาท/เดือน)</label>
+        <select id="c-budget">
+          <option value="">เลือกงบ</option>
+          <option>6,500–9,999</option><option>10,000–14,999</option>
+          <option>15,000–19,999</option><option>20,000–24,999</option>
+          <option>25,000–30,000</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label>หมายเหตุ</label><input id="c-note" type="text" placeholder="เช่น ต้องการชั้นสูง เลี้ยงแมว"></div>
+    <button class="btn btn-primary btn-full" onclick="saveCust()">💾 บันทึกลูกค้า</button>
+  </div>
+  <div id="cust-list" style="display:flex;flex-direction:column;gap:10px"></div>
+</div>
+
+<!-- SEARCH -->
+<div class="page" id="page-search">
+  <div class="search-banner">
+    <h2>🔍 ค้นหาห้องให้ลูกค้า</h2>
+    <p>กรองตามโซนและงบได้เลย Copy ส่งลูกค้าได้ทันที</p>
+  </div>
+  <div class="filter-row">
+    <select id="s-zone" onchange="renderSearch()">
+      <option value="">ทุกโซน</option>
+      <option>จรัญสนิทวงศ์</option><option>ปิ่นเกล้า</option><option>พระราม 8</option>
+      <option>บางพลัด</option><option>ห้วยขวาง</option><option>วุฒากาศ</option>
+      <option>ตลาดพลู</option><option>บางหว้า</option><option>บางแค</option>
+      <option>เพชรเกษม</option><option>ศาลายา</option><option>มหิดล</option>
+      <option>ฝั่งธนอื่นๆ</option>
+    </select>
+    <select id="s-budget" onchange="renderSearch()">
+      <option value="">ทุกราคา</option>
+      <option value="6500-9999">6,500–9,999</option>
+      <option value="10000-14999">10,000–14,999</option>
+      <option value="15000-19999">15,000–19,999</option>
+      <option value="20000-24999">20,000–24,999</option>
+      <option value="25000-30000">25,000–30,000</option>
+    </select>
+  </div>
+  <div class="listing-list" id="search-list"></div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="overlay" onclick="closeDetail()"></div>
+<div class="modal-sheet" id="detail-sheet">
+  <div class="modal-handle"></div>
+  <div class="modal-head">
+    <div class="modal-title" id="d-title"></div>
+    <button class="modal-close" onclick="closeDetail()">✕</button>
+  </div>
+  <div class="modal-body" id="d-body"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bot-nav">
+  <button class="bot-tab active" onclick="showPage('dash')" id="tab-dash"><div class="icon">📊</div>Dashboard</button>
+  <button class="bot-tab" onclick="showPage('add')" id="tab-add"><div class="icon">➕</div>เพิ่มห้อง</button>
+  <button class="bot-tab" onclick="showPage('list')" id="tab-list"><div class="icon">🏠</div>ห้องทั้งหมด</button>
+  <button class="bot-tab" onclick="showPage('customers')" id="tab-customers"><div class="icon">👥</div>ลูกค้า</button>
+  <button class="bot-tab" onclick="showPage('search')" id="tab-search"><div class="icon">🔍</div>ค้นหา</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============ CONFIG ============
+const AT_TOKEN = 'pat6qZn1HdIxat92A.2ae19aa93d13a2a4652e17e34e7ab6a882fe6ab14efcb691edf11af9e304a5f3';
+const AT_BASE  = 'appiIr0jyriVc6UbX';
+const AT_LISTINGS  = 'Listings';
+const AT_CUSTOMERS = 'Customer';
+const CONTACT = { name:'โฟล์ค', phone:'092-574-2249', line:'0925742249', lineOA:'@537aywrx' };
+const RR_START = 32; // next number (32 = RR-032 is first)
+
+let listings = JSON.parse(localStorage.getItem('rr_listings') || '[]');
+let customers = JSON.parse(localStorage.getItem('rr_customers') || '[]');
+let uploadedImgs = [];
+let generatedPost = '';
+let nextRR = parseInt(localStorage.getItem('rr_next') || RR_START);
+
+const FURNS = [
+  {k:'ac',l:'❄️ แอร์'},{k:'bed',l:'🛏 เตียง'},{k:'wardrobe',l:'🚪 ตู้เสื้อผ้า'},
+  {k:'fridge',l:'🧊 ตู้เย็น'},{k:'washer',l:'🫧 เครื่องซักผ้า'},{k:'tv',l:'📺 ทีวี'},
+  {k:'sofa',l:'🛋 โซฟา'},{k:'heater',l:'🚿 เครื่องทำน้ำอุ่น'},{k:'stove',l:'🍳 เตา'},
+  {k:'micro',l:'📦 ไมโครเวฟ'},{k:'desk',l:'🖥 โต๊ะทำงาน'},{k:'curtain',l:'🪟 ผ้าม่าน'},
+];
+
+// ============ AIRTABLE ============
+async function atFetch(table, method='GET', body=null, id='') {
+  const url = `https://api.airtable.com/v0/${AT_BASE}/${encodeURIComponent(table)}${id?'/'+id:''}`;
+  const opts = { method, headers: { 'Authorization':'Bearer '+AT_TOKEN, 'Content-Type':'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(url, opts);
+  return r.json();
+}
+
+async function atGetAll(table) {
+  let all = [], offset = '';
+  do {
+    const url = `https://api.airtable.com/v0/${AT_BASE}/${encodeURIComponent(table)}?pageSize=100${offset?'&offset='+offset:''}`;
+    const r = await fetch(url, { headers:{ 'Authorization':'Bearer '+AT_TOKEN } });
+    const d = await r.json();
+    if (d.records) all = all.concat(d.records);
+    offset = d.offset || '';
+  } while(offset);
+  return all;
+}
+
+async function syncAll() {
+  showToast('🔄 กำลัง sync...');
+  try {
+    const [lRecs, cRecs] = await Promise.all([atGetAll(AT_LISTINGS), atGetAll(AT_CUSTOMERS)]);
+    listings = lRecs.map(r => ({ ...r.fields, _id: r.id }));
+    customers = cRecs.map(r => ({ ...r.fields, _id: r.id }));
+    localStorage.setItem('rr_listings', JSON.stringify(listings));
+    localStorage.setItem('rr_customers', JSON.stringify(customers));
+    updateDash(); renderList(); renderSearch(); renderCust();
+    showToast('✅ Sync เรียบร้อย');
+  } catch(e) { showToast('❌ Sync ไม่สำเร็จ'); }
+}
+
+async function pushListing(listing) {
+  const imgs = listing.images?.map(url => ({ url })) || [];
+  const fields = {
+    'รหัสทรัพย์': listing.code,
+    'โครงการ': listing.project,
+    'โซน': listing.zone,
+    'ตึก': listing.building || '',
+    'ชั้น': listing.floor ? parseInt(listing.floor) : null,
+    'ขนาด': listing.size ? parseFloat(listing.size) : null,
+    'ห้องนอน': listing.bedroom,
+    'ห้องน้ำ': listing.bathroom,
+    'ราคา': listing.price,
+    'สถานะ': listing.status === 'available' ? 'ว่าง' : 'มีผู้เช่า',
+    'พร้อมเข้าอยู่': listing.availDate || '',
+    'โลเคชัน': listing.nearby || '',
+    'เฟอร์นิเจอร์': listing.furniture?.join(', ') || '',
+    'ชื่อเจ้าของ': listing.ownerName || '',
+    'เบอร์เจ้าของ': listing.ownerPhone || '',
+    'ลิงก์ FB': listing.fbLink || '',
+    'ประกาศ': listing.post || '',
+    'วันที่เพิ่ม': new Date().toISOString().split('T')[0],
+  };
+  if (imgs.length) fields['รูปภาพ'] = imgs;
+  return atFetch(AT_LISTINGS, 'POST', { records: [{ fields }] });
+}
+
+async function pushCustomer(c) {
+  const fields = {
+    'ชื่อ': c.name,
+    'ติดต่อ': c.contact || '',
+    'โซนที่สนใจ': c.zone || '',
+    'งบ': c.budget || '',
+    'หมายเหตุ': c.note || '',
+    'วันที่': new Date().toISOString().split('T')[0],
+  };
+  return atFetch(AT_CUSTOMERS, 'POST', { records: [{ fields }] });
+}
+
+// ============ INIT ============
+function init() {
+  renderFurns();
+  updateDash();
+  renderList();
+  renderCust();
+  renderSearch();
+  const d = new Date();
+  document.getElementById('dash-date').textContent = d.toLocaleDateString('th-TH',{ weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  syncAll();
+}
+
+function renderFurns() {
+  document.getElementById('furn-grid').innerHTML = FURNS.map(f => `
+    <label class="furn-item" id="fi-${f.k}" onclick="togFurn('${f.k}',this)">
+      <input type="checkbox" id="fc-${f.k}"> ${f.l}
+    </label>
+  `).join('');
+}
+
+function togFurn(k, el) {
+  const cb = document.getElementById('fc-'+k);
+  cb.checked = !cb.checked;
+  el.classList.toggle('on', cb.checked);
+}
+
+// ============ PAGE NAV ============
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.bot-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.getElementById('tab-'+id)?.classList.add('active');
+  if (id==='list') renderList();
+  if (id==='dash') updateDash();
+  if (id==='customers') renderCust();
+  if (id==='search') renderSearch();
+}
+
+// ============ IMAGES ============
+function handleImgs(e) {
+  Array.from(e.target.files).forEach(f => {
+    const r = new FileReader();
+    r.onload = ev => { uploadedImgs.push(ev.target.result); renderPrev(); };
+    r.readAsDataURL(f);
+  });
+}
+function renderPrev() {
+  document.getElementById('prev-grid').innerHTML = uploadedImgs.map((s,i) => `
+    <div class="prev-wrap"><img src="${s}"><button class="prev-del" onclick="delImg(${i})">✕</button></div>
+  `).join('');
+}
+function delImg(i) { uploadedImgs.splice(i,1); renderPrev(); }
+
+// ============ GENERATE POST ============
+async function genPost() {
+  const proj = document.getElementById('f-proj').value.trim();
+  const zone = document.getElementById('f-zone').value;
+  const price = document.getElementById('f-price').value;
+  if (!proj||!zone||!price) { showToast('⚠️ กรอกโครงการ โซน ราคาก่อน'); return; }
+
+  const floor = document.getElementById('f-floor').value;
+  const bld = document.getElementById('f-bld').value;
+  const size = document.getElementById('f-size').value;
+  const bed = document.getElementById('f-bed').value;
+  const bath = document.getElementById('f-bath').value;
+  const nearby = document.getElementById('f-nearby').value;
+  const dt = document.getElementById('f-date').value;
+  const furn = FURNS.filter(f => document.getElementById('fc-'+f.k)?.checked).map(f => f.l.split(' ').slice(1).join(' '));
+  const extra = document.getElementById('f-furn-extra').value.trim();
+  if (extra) furn.push(extra);
+  const code = 'RR-' + String(nextRR).padStart(3,'0');
+  const dateStr = dt ? new Date(dt).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'}) : '';
+
+  document.getElementById('ai-sec').style.display = 'block';
+  document.getElementById('ai-out').innerHTML = `<div class="ai-loading"><div class="dots"><span></span><span></span><span></span></div> AI กำลังเขียน...</div>`;
+
+  const prompt = `เขียนประกาศห้องเช่าคอนโดตามรูปแบบนี้ทุกอย่างเป๊ะ ห้ามเปลี่ยนรูปแบบ ห้ามเพิ่มหัวข้อ:
+
+🏢 ให้เช่า : ${proj}
+💳 ราคาเช่า : ${parseInt(price).toLocaleString()} บาท/เดือน${dateStr ? `\n📌 พร้อมเข้าอยู่ ${dateStr}` : ''}
+
+📐 ขนาด : ${size||'–'} ตร.ม.
+🛏 ${bed === 'Studio' ? 'Studio' : bed+' ห้องนอน'} | 🚿 ${bath} ห้องน้ำ | 🛋 1 ห้องนั่งเล่น${bld||floor ? `\n♾️ ชั้น : ${floor||'–'} | ตึก : ${bld||'–'}` : ''}
+${furn.length ? `\n📦 เฟอร์นิเจอร์ + เครื่องใช้ไฟฟ้า\n${furn.join(' · ')}` : ''}
+${nearby ? `\n📍 โลเคชัน : ${nearby}` : ''}
+
+🏷 ${code}
+รับจองบัญชีเจ้าของห้องเท่านั้น 💯
+
+💬 ติดต่อ/สอบถาม ทักแชท
+𝗧𝗲𝗹 & Line : 𝟬𝟵𝟮-𝟱𝟳𝟰-𝟮𝟮𝟰𝟵 (โฟล์ค)
+𝗟𝗶𝗻𝗲𝗢𝗔 : @𝟱𝟯𝟳𝗮𝘆𝘄𝗿𝘅
+
+ให้ผลลัพธ์เป็นประกาศข้างบนนี้เลย แค่เติมข้อมูลให้ครบ รักษาการเว้นบรรทัดทุกจุดตามตัวอย่าง`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:800, messages:[{role:'user',content:prompt}] })
+    });
+    const data = await res.json();
+    generatedPost = data.content?.map(c=>c.text||'').join('') || '';
+    document.getElementById('ai-out').textContent = generatedPost;
+  } catch(e) {
+    document.getElementById('ai-out').textContent = '❌ เกิดข้อผิดพลาด ลองใหม่อีกครั้ง';
+  }
+}
+
+function copyPost() {
+  if (!generatedPost) { showToast('สร้างประกาศก่อนนะครับ'); return; }
+  navigator.clipboard.writeText(generatedPost).then(() => showToast('📋 Copy แล้ว!'));
+}
+
+// ============ SAVE LISTING ============
+async function saveListing() {
+  const proj = document.getElementById('f-proj').value.trim();
+  const zone = document.getElementById('f-zone').value;
+  const price = document.getElementById('f-price').value;
+  if (!proj||!zone||!price) { showToast('⚠️ กรอกข้อมูลที่จำเป็น'); return; }
+
+  const furn = FURNS.filter(f => document.getElementById('fc-'+f.k)?.checked).map(f => f.l.split(' ').slice(1).join(' '));
+  const extra = document.getElementById('f-furn-extra').value.trim();
+  if (extra) furn.push(extra);
+  const code = 'RR-' + String(nextRR).padStart(3,'0');
+
+  const listing = {
+    code, project: proj, zone,
+    building: document.getElementById('f-bld').value,
+    floor: document.getElementById('f-floor').value,
+    size: document.getElementById('f-size').value,
+    bedroom: document.getElementById('f-bed').value,
+    bathroom: document.getElementById('f-bath').value,
+    price: parseInt(price),
+    status: document.getElementById('f-status').value,
+    availDate: document.getElementById('f-date').value,
+    nearby: document.getElementById('f-nearby').value,
+    furniture: furn,
+    ownerName: document.getElementById('f-own-name').value,
+    ownerPhone: document.getElementById('f-own-phone').value,
+    fbLink: document.getElementById('f-fb').value,
+    images: [...uploadedImgs],
+    post: generatedPost,
+    createdAt: new Date().toISOString(),
+  };
+
+  listings.unshift(listing);
+  nextRR++;
+  localStorage.setItem('rr_listings', JSON.stringify(listings));
+  localStorage.setItem('rr_next', nextRR);
+  showToast('💾 บันทึกแล้ว กำลัง sync...');
+
+  try { await pushListing(listing); showToast('✅ บันทึกและ sync เรียบร้อย'); }
+  catch(e) { showToast('✅ บันทึกในเครื่องแล้ว (sync ล้มเหลว)'); }
+
+  clearForm();
+  updateDash();
+}
+
+function clearForm() {
+  ['f-proj','f-bld','f-floor','f-size','f-price','f-nearby','f-own-name','f-own-phone','f-fb','f-furn-extra'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.value = '';
+  });
+  document.getElementById('f-zone').value = '';
+  document.getElementById('f-status').value = 'available';
+  document.getElementById('f-date').value = '';
+  FURNS.forEach(f => {
+    const cb = document.getElementById('fc-'+f.k), fi = document.getElementById('fi-'+f.k);
+    if(cb) cb.checked=false; if(fi) fi.classList.remove('on');
+  });
+  uploadedImgs = []; renderPrev();
+  generatedPost = '';
+  document.getElementById('ai-sec').style.display = 'none';
+}
+
+// ============ DASHBOARD ============
+function updateDash() {
+  document.getElementById('s-total').textContent = listings.length;
+  document.getElementById('s-avail').textContent = listings.filter(l=>l.status==='available'||l['สถานะ']==='ว่าง').length;
+  document.getElementById('s-occ').textContent = listings.filter(l=>l.status==='occupied'||l['สถานะ']==='มีผู้เช่า').length;
+  document.getElementById('s-cust').textContent = customers.length;
+
+  const zones = {};
+  listings.forEach(l => { const z = l.zone||l['โซน']||''; if(z) zones[z]=(zones[z]||0)+1; });
+  const zs = document.getElementById('zone-summary');
+  if (!Object.keys(zones).length) { zs.innerHTML = '<div style="color:var(--text3);font-size:14px">ยังไม่มีข้อมูล</div>'; }
+  else {
+    zs.innerHTML = Object.entries(zones).sort((a,b)=>b[1]-a[1]).map(([z,c])=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;background:var(--surface);border-radius:10px;padding:12px 14px;border:1px solid var(--border)">
+        <span style="font-size:14px;font-weight:500">📍 ${z}</span>
+        <span style="font-size:13px;color:var(--text3)">${c} ห้อง</span>
+      </div>
+    `).join('');
+  }
+
+  const dc = document.getElementById('dash-cust-list');
+  const recent = customers.slice(0,3);
+  dc.innerHTML = recent.length ? recent.map(custCardHTML).join('') : '<div style="color:var(--text3);font-size:14px">ยังไม่มีลูกค้า</div>';
+}
+
+// ============ LISTINGS ============
+function getField(l, ...keys) { for(const k of keys) if(l[k]!==undefined) return l[k]; return ''; }
+
+function renderList() {
+  const zone = document.getElementById('fl-zone')?.value||'';
+  const budget = document.getElementById('fl-budget')?.value||'';
+  const status = document.getElementById('fl-status')?.value||'';
+  const q = (document.getElementById('fl-q')?.value||'').toLowerCase();
+
+  let fl = listings.filter(l => {
+    const lzone = getField(l,'zone','โซน');
+    const lstatus = getField(l,'status','สถานะ');
+    const lprice = getField(l,'price','ราคา');
+    const lproj = getField(l,'project','โครงการ');
+    const lcode = getField(l,'code','รหัสทรัพย์');
+    if (zone && lzone !== zone) return false;
+    if (status) {
+      const isAvail = lstatus==='available'||lstatus==='ว่าง';
+      if (status==='available' && !isAvail) return false;
+      if (status==='occupied' && isAvail) return false;
+    }
+    if (budget) {
+      const [mn,mx] = budget.split('-').map(Number);
+      if (lprice<mn||lprice>mx) return false;
+    }
+    if (q && !lproj.toLowerCase().includes(q) && !lcode.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  const g = document.getElementById('listing-list');
+  g.innerHTML = fl.length ? fl.map(listCardHTML).join('') : '<div class="empty"><div class="ei">🏠</div>ไม่พบห้องที่ตรงเงื่อนไข</div>';
+}
+
+function listCardHTML(l) {
+  const imgs = l.images||l['รูปภาพ']||[];
+  const imgSrc = Array.isArray(imgs) && imgs[0] ? (typeof imgs[0]==='string' ? imgs[0] : imgs[0].url) : null;
+  const imgHTML = imgSrc ? `<img src="${imgSrc}">` : '🏢';
+  const code = getField(l,'code','รหัสทรัพย์');
+  const proj = getField(l,'project','โครงการ');
+  const zone = getField(l,'zone','โซน');
+  const floor = getField(l,'floor','ชั้น');
+  const size = getField(l,'size','ขนาด');
+  const price = getField(l,'price','ราคา');
+  const status = getField(l,'status','สถานะ');
+  const bed = getField(l,'bedroom','ห้องนอน');
+  const isAvail = status==='available'||status==='ว่าง';
+  return `
+    <div class="listing-card" onclick="showDetail('${code||proj}')">
+      <div class="lc-img">${imgHTML}</div>
+      <div class="lc-body">
+        ${code?`<div class="lc-code">${code}</div>`:''}
+        <div class="lc-name">${proj}</div>
+        <div class="lc-sub">📍 ${zone}${floor?' · ชั้น '+floor:''}${size?' · '+size+' ตร.ม.':''}</div>
+        <div class="lc-price">${parseInt(price).toLocaleString()} <span>บาท/เดือน</span></div>
+        <div class="lc-tags">
+          <span class="tag ${isAvail?'available':'occupied'}">${isAvail?'✅ ว่าง':'🔴 มีผู้เช่า'}</span>
+          ${bed?`<span class="tag">${bed==='Studio'?'Studio':bed+' นอน'}</span>`:''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function showDetail(codeOrProj) {
+  const l = listings.find(x => (x.code||x['รหัสทรัพย์']||x.project||x['โครงการ']) === codeOrProj);
+  if (!l) return;
+
+  const code = getField(l,'code','รหัสทรัพย์');
+  const proj = getField(l,'project','โครงการ');
+  const zone = getField(l,'zone','โซน');
+  const floor = getField(l,'floor','ชั้น');
+  const bld = getField(l,'building','ตึก');
+  const size = getField(l,'size','ขนาด');
+  const bed = getField(l,'bedroom','ห้องนอน');
+  const bath = getField(l,'bathroom','ห้องน้ำ');
+  const price = getField(l,'price','ราคา');
+  const status = getField(l,'status','สถานะ');
+  const avail = getField(l,'availDate','พร้อมเข้าอยู่');
+  const nearby = getField(l,'nearby','โลเคชัน');
+  const furn = getField(l,'furniture','เฟอร์นิเจอร์');
+  const ownN = getField(l,'ownerName','ชื่อเจ้าของ');
+  const ownP = getField(l,'ownerPhone','เบอร์เจ้าของ');
+  const fbLink = getField(l,'fbLink','ลิงก์ FB');
+  const post = getField(l,'post','ประกาศ');
+  const imgs = l.images||l['รูปภาพ']||[];
+  const isAvail = status==='available'||status==='ว่าง';
+  const furnStr = Array.isArray(furn) ? furn.join(' · ') : furn;
+  const availStr = avail ? new Date(avail).toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'}) : '';
+
+  const imgsHTML = imgs.length
+    ? imgs.map(i => { const s = typeof i==='string'?i:i.url; return `<div class="detail-img"><img src="${s}" loading="lazy"></div>`; }).join('')
+    : '<div class="detail-img empty">🏢</div>';
+
+  document.getElementById('d-title').textContent = `${code?code+' · ':''}${proj}`;
+  document.getElementById('d-body').innerHTML = `
+    <div class="detail-imgs">${imgsHTML}</div>
+    <div class="card card-pad" style="margin-bottom:12px">
+      <div class="info-row"><span class="info-k">โซน</span><span class="info-v">📍 ${zone}</span></div>
+      ${bld?`<div class="info-row"><span class="info-k">ตึก</span><span class="info-v">${bld}</span></div>`:''}
+      ${floor?`<div class="info-row"><span class="info-k">ชั้น</span><span class="info-v">${floor}</span></div>`:''}
+      ${size?`<div class="info-row"><span class="info-k">ขนาด</span><span class="info-v">${size} ตร.ม.</span></div>`:''}
+      ${bed?`<div class="info-row"><span class="info-k">ห้องนอน</span><span class="info-v">${bed}</span></div>`:''}
+      ${bath?`<div class="info-row"><span class="info-k">ห้องน้ำ</span><span class="info-v">${bath}</span></div>`:''}
+      <div class="info-row"><span class="info-k">ราคา</span><span class="info-v" style="color:var(--accent);font-size:17px;font-weight:700">${parseInt(price).toLocaleString()} บาท/เดือน</span></div>
+      <div class="info-row"><span class="info-k">สถานะ</span><span class="info-v">${isAvail?'✅ ว่าง':'🔴 มีผู้เช่า'}</span></div>
+      ${availStr?`<div class="info-row"><span class="info-k">พร้อมเข้าอยู่</span><span class="info-v">${availStr}</span></div>`:''}
+      ${furnStr?`<div class="info-row"><span class="info-k">เฟอร์นิเจอร์</span><span class="info-v" style="font-size:12px">${furnStr}</span></div>`:''}
+      ${nearby?`<div class="info-row"><span class="info-k">โลเคชัน</span><span class="info-v" style="font-size:12px;text-align:right">${nearby}</span></div>`:''}
+    </div>
+    <div class="card card-pad" style="margin-bottom:12px">
+      ${ownN?`<div class="info-row"><span class="info-k">เจ้าของ</span><span class="info-v">${ownN}</span></div>`:''}
+      ${ownP?`<div class="info-row"><span class="info-k">โทร (เจ้าของ)</span><span class="info-v">${ownP}</span></div>`:''}
+      <div class="info-row"><span class="info-k">นายหน้า</span><span class="info-v">${CONTACT.name} ${CONTACT.phone}</span></div>
+      <div class="info-row"><span class="info-k">Line</span><span class="info-v">${CONTACT.line}</span></div>
+      <div class="info-row"><span class="info-k">Line OA</span><span class="info-v">${CONTACT.lineOA}</span></div>
+      ${fbLink?`<div class="info-row"><span class="info-k">โพส FB</span><span class="info-v"><a href="${fbLink}" target="_blank" style="color:var(--accent)">ดูโพส ↗</a></span></div>`:''}
+    </div>
+    ${post?`
+      <div style="margin-bottom:8px;font-size:12px;font-weight:600;color:var(--text3);letter-spacing:0.05em">ประกาศ</div>
+      <div class="post-box">${post}</div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn btn-secondary btn-sm" onclick="navigator.clipboard.writeText(${JSON.stringify(post)}).then(()=>showToast('📋 Copy แล้ว!'))">📋 Copy ประกาศ</button>
+        ${fbLink?`<a href="${fbLink}" target="_blank" class="btn btn-accent btn-sm">📘 ดูโพส FB</a>`:''}
+      </div>
+    `:''}
+    <div class="div"></div>
+    <div class="btn-row">
+      <button class="btn btn-warn btn-sm" onclick="delListing('${code||proj}')">🗑 ลบ</button>
+      <button class="btn btn-secondary btn-sm" style="flex:1" onclick="toggleStatus('${code||proj}')">${isAvail?'🔴 มีผู้เช่าแล้ว':'✅ เปิดว่างอีกครั้ง'}</button>
+    </div>
+  `;
+
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('detail-sheet').classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('detail-sheet').classList.remove('open');
+}
+
+function delListing(codeOrProj) {
+  if (!confirm('ลบห้องนี้?')) return;
+  listings = listings.filter(l => (l.code||l['รหัสทรัพย์']||l.project||l['โครงการ']) !== codeOrProj);
+  localStorage.setItem('rr_listings', JSON.stringify(listings));
+  closeDetail(); renderList(); updateDash(); showToast('🗑 ลบแล้ว');
+}
+
+function toggleStatus(codeOrProj) {
+  const l = listings.find(x => (x.code||x['รหัสทรัพย์']||x.project||x['โครงการ']) === codeOrProj);
+  if (!l) return;
+  if (l.status) l.status = l.status==='available'?'occupied':'available';
+  else l['สถานะ'] = l['สถานะ']==='ว่าง'?'มีผู้เช่า':'ว่าง';
+  localStorage.setItem('rr_listings', JSON.stringify(listings));
+  closeDetail(); renderList(); updateDash(); showToast('✅ อัปเดตสถานะแล้ว');
+}
+
+// ============ CUSTOMERS ============
+async function saveCust() {
+  const name = document.getElementById('c-name').value.trim();
+  if (!name) { showToast('⚠️ กรอกชื่อลูกค้า'); return; }
+  const c = {
+    name, contact: document.getElementById('c-contact').value,
+    zone: document.getElementById('c-zone').value,
+    budget: document.getElementById('c-budget').value,
+    note: document.getElementById('c-note').value,
+    createdAt: new Date().toISOString()
+  };
+  customers.unshift(c);
+  localStorage.setItem('rr_customers', JSON.stringify(customers));
+  ['c-name','c-contact','c-note'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('c-zone').value='';
+  document.getElementById('c-budget').value='';
+  renderCust(); updateDash(); showToast('💾 บันทึกลูกค้าแล้ว กำลัง sync...');
+  try { await pushCustomer(c); showToast('✅ Sync เรียบร้อย'); } catch(e) {}
+}
+
+function custCardHTML(c) {
+  const name = c.name||c['ชื่อ']||'';
+  const contact = c.contact||c['ติดต่อ']||'';
+  const zone = c.zone||c['โซนที่สนใจ']||'';
+  const budget = c.budget||c['งบ']||'';
+  const note = c.note||c['หมายเหตุ']||'';
+  const dt = c.createdAt||c['วันที่']||'';
+  const d = dt ? new Date(dt).toLocaleDateString('th-TH',{day:'numeric',month:'short'}) : '';
+  return `
+    <div class="cust-card">
+      <div class="cust-avatar">👤</div>
+      <div style="flex:1;min-width:0">
+        <div class="cust-name">${name}</div>
+        ${contact?`<div class="cust-detail">${contact}</div>`:''}
+        <div class="cust-badges">
+          ${zone?`<span class="badge-z">📍 ${zone}</span>`:''}
+          ${budget?`<span class="badge-b">💰 ${budget}</span>`:''}
+        </div>
+        ${note?`<div style="font-size:12px;color:var(--text3);margin-top:4px">📝 ${note}</div>`:''}
+      </div>
+      ${d?`<div style="font-size:11px;color:var(--text3);flex-shrink:0">${d}</div>`:''}
+    </div>
+  `;
+}
+
+function renderCust() {
+  const g = document.getElementById('cust-list');
+  if (!g) return;
+  g.innerHTML = customers.length ? customers.map(custCardHTML).join('') : '<div class="empty"><div class="ei">👥</div>ยังไม่มีลูกค้า</div>';
+}
+
+// ============ SEARCH ============
+function renderSearch() {
+  const zone = document.getElementById('s-zone')?.value||'';
+  const budget = document.getElementById('s-budget')?.value||'';
+  let fl = listings.filter(l => {
+    const lzone = getField(l,'zone','โซน');
+    const lstatus = getField(l,'status','สถานะ');
+    const lprice = getField(l,'price','ราคา');
+    const isAvail = lstatus==='available'||lstatus==='ว่าง';
+    if (!isAvail) return false;
+    if (zone && lzone!==zone) return false;
+    if (budget) { const [mn,mx]=budget.split('-').map(Number); if(lprice<mn||lprice>mx) return false; }
+    return true;
+  });
+  const g = document.getElementById('search-list');
+  g.innerHTML = fl.length ? fl.map(listCardHTML).join('') : '<div class="empty"><div class="ei">🔍</div>ไม่พบห้องว่าง</div>';
+}
+
+// ============ TOAST ============
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+init();
+</script>
+</body>
+</html>
