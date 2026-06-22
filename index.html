@@ -682,37 +682,23 @@ async function genPost() {
   document.getElementById('ai-sec').style.display = 'block';
   document.getElementById('ai-out').innerHTML = `<div class="ai-loading"><div class="dots"><span></span><span></span><span></span></div> AI กำลังเขียน...</div>`;
 
-  const prompt = `เขียนประกาศห้องเช่าคอนโดตามรูปแบบนี้ทุกอย่างเป๊ะ ห้ามเปลี่ยนรูปแบบ ห้ามเพิ่มหัวข้อ:
-
-🏢 ให้เช่า : ${proj}
-💳 ราคาเช่า : ${parseInt(price).toLocaleString()} บาท/เดือน${dateStr ? `\n📌 พร้อมเข้าอยู่ ${dateStr}` : ''}
-
-📐 ขนาด : ${size||'–'} ตร.ม.
-🛏 ${bed === 'Studio' ? 'Studio' : bed+' ห้องนอน'} | 🚿 ${bath} ห้องน้ำ | 🛋 1 ห้องนั่งเล่น${bld||floor ? `\n♾️ ชั้น : ${floor||'–'} | ตึก : ${bld||'–'}` : ''}
-${furn.length ? `\n📦 เฟอร์นิเจอร์ + เครื่องใช้ไฟฟ้า\n${furn.join(' · ')}` : ''}
-${nearby ? `\n📍 โลเคชัน : ${nearby}` : ''}
-
-🏷 ${code}
-รับจองบัญชีเจ้าของห้องเท่านั้น 💯
-
-💬 ติดต่อ/สอบถาม ทักแชท
-𝗧𝗲𝗹 & Line : 𝟬𝟵𝟮-𝟱𝟳𝟰-𝟮𝟮𝟰𝟵 (โฟล์ค)
-𝗟𝗶𝗻𝗲𝗢𝗔 : @𝟱𝟯𝟳𝗮𝘆𝘄𝗿𝘅
-
-ให้ผลลัพธ์เป็นประกาศข้างบนนี้เลย แค่เติมข้อมูลให้ครบ รักษาการเว้นบรรทัดทุกจุดตามตัวอย่าง`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:800, messages:[{role:'user',content:prompt}] })
-    });
-    const data = await res.json();
-    generatedPost = data.content?.map(c=>c.text||'').join('') || '';
-    document.getElementById('ai-out').textContent = generatedPost;
-  } catch(e) {
-    document.getElementById('ai-out').textContent = '❌ เกิดข้อผิดพลาด ลองใหม่อีกครั้ง';
-  }
+  let post = '';
+  post += `🏢 ให้เช่า : ${proj}\n`;
+  post += `💳 ราคาเช่า : ${parseInt(price).toLocaleString()} บาท/เดือน\n`;
+  if (dateStr) post += `📌 พร้อมเข้าอยู่ ${dateStr}\n`;
+  post += `\n`;
+  post += `📐 ขนาด : ${size||'–'} ตร.ม.\n`;
+  post += `🛏 ${bed === 'Studio' ? 'Studio' : bed+' ห้องนอน'} | 🚿 ${bath} ห้องน้ำ | 🛋 1 ห้องนั่งเล่น\n`;
+  if (bld || floor) post += `♾️ ชั้น : ${floor||'–'} | ตึก : ${bld||'–'}\n`;
+  if (furn.length) { post += `\n📦 เฟอร์นิเจอร์ + เครื่องใช้ไฟฟ้า\n`; post += furn.join(' · ') + `\n`; }
+  if (nearby) post += `\n📍 โลเคชัน : ${nearby}\n`;
+  post += `\n🏷 ${code}\n`;
+  post += `รับจองบัญชีเจ้าของห้องเท่านั้น 💯\n`;
+  post += `\n💬 ติดต่อ/สอบถาม ทักแชท\n`;
+  post += `𝗧𝗲𝗹 & Line : 𝟬𝟵𝟮-𝟱𝟳𝟰-𝟮𝟮𝟰𝟵 (โฟล์ค)\n`;
+  post += `𝗟𝗶𝗻𝗲𝗢𝗔 : @𝟱𝟯𝟳𝗮𝘆𝘄𝗿𝘅`;
+  generatedPost = post;
+  document.getElementById('ai-out').textContent = generatedPost;
 }
 
 function copyPost() {
